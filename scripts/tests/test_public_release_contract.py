@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """公開リポジトリとしての安全境界を静的に検証する。"""
 from pathlib import Path
+import json
 import re
 import subprocess
 
@@ -25,8 +26,15 @@ assert "web/wrangler.jsonc" not in tracked, "実デプロイ設定を追跡し�
 assert "web/wrangler.example.jsonc" in tracked, "公開用Wranglerサンプルが未追跡です"
 
 example = (ROOT / "web/wrangler.example.jsonc").read_text()
-assert "YOUR_CLOUDFLARE_ACCOUNT_ID" in example
-assert "example.com" in example
+example_config = json.loads(example)
+assert example_config["account_id"] == "YOUR_CLOUDFLARE_ACCOUNT_ID"
+assert example_config["routes"] == [
+    {
+        "pattern": "baby.example.com",
+        "custom_domain": True,
+        "zone_name": "example.com",
+    }
+]
 assert not re.search(r'"account_id"\s*:\s*"[0-9a-f]{32}"', example), "実account IDがサンプルに残っています"
 
 project = (ROOT / "ios/project.yml").read_text()

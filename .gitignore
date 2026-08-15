@@ -1,0 +1,15 @@
+# Xcode
+ios/*.xcodeproj
+ios/DerivedData/
+ios/xcodebuild.log
+ios/TestResults.xcresult
+xcuserdata/
+
+# Wrangler
+web/wrangler.jsonc
+web/.dev.vars*
+web/.wrangler/
+.wrangler/
+
+# macOS
+.DS_Store

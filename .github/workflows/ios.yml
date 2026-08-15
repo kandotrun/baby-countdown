@@ -1,0 +1,88 @@
+name: ios
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - "scripts/tests/**"
+      - "web/wrangler.example.jsonc"
+      - ".github/workflows/**"
+      - ".github/actionlint.yaml"
+      - ".gitignore"
+      - "README.md"
+      - "LICENSE"
+      - "SECURITY.md"
+      - "CONTRIBUTING.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: [self-hosted, macOS, ARM64, baby-countdown-ci]
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure self-hosted toolchain
+        run: |
+          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+          /opt/homebrew/bin/xcodegen --version
+          xcodebuild -version
+      - name: Verify widget-only contract
+        run: python3 scripts/tests/test_widget_only_contract.py
+      - name: Verify public-release contract
+        run: python3 scripts/tests/test_public_release_contract.py
+      - name: Verify XcodeGen
+        run: |
+          command -v xcodegen
+          xcodegen --version
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+      - name: Select iOS simulator
+        id: simulator
+        run: |
+          RUNTIME_ID=$(xcrun simctl list runtimes available -j | python3 -c 'import json,sys; payload=json.load(sys.stdin); print(next(runtime["identifier"] for runtime in payload["runtimes"] if runtime.get("isAvailable") and runtime["name"] == "iOS 26.5"))')
+          DEVICE_ID=$(xcrun simctl create \
+            "BabyCountdown CI $GITHUB_RUN_ID" \
+            com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro \
+            "$RUNTIME_ID")
+          echo "id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcodebuild -version
+      - name: Build and test
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project BabyCountdown.xcodeproj \
+            -scheme BabyCountdown \
+            -destination 'platform=iOS Simulator,id=${{ steps.simulator.outputs.id }}' \
+            -derivedDataPath DerivedData \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -jobs 1 \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee xcodebuild.log
+      - name: Delete CI simulator
+        if: always() && steps.simulator.outputs.id != ''
+        run: |
+          xcrun simctl shutdown '${{ steps.simulator.outputs.id }}' || true
+          xcrun simctl delete '${{ steps.simulator.outputs.id }}' || true
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: baby-countdown-ios-evidence
+          path: |
+            ios/xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7

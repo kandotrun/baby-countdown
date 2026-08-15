@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>うまれるまで — カウントダウン</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EF;
+    --ink:#33291F;
+    --muted:#8F8172;
+    --faint:#B9AC9C;
+    --accent:#D9764A;
+    --accent-soft:#F3DCC9;
+    --track:#ECE2D3;
+    --card:#FFFDF9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(120% 90% at 50% -10%, #FFF9F0 0%, var(--paper) 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:"Zen Maru Gothic", system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100dvh;
+    padding:clamp(24px,6vw,56px) 20px calc(28px + env(safe-area-inset-bottom));
+    overflow-x:hidden;
+  }
+  .wrap{width:100%;max-width:640px;display:flex;flex-direction:column;align-items:center;flex:1}
+
+  .eyebrow{
+    font-size:11px;letter-spacing:.42em;text-indent:.42em;
+    color:var(--faint);font-weight:700;
+    text-transform:uppercase;
+    animation:rise .9s .1s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .due-date{
+    margin-top:14px;
+    font-size:clamp(15px,3.4vw,18px);
+    color:var(--muted);font-weight:500;
+    letter-spacing:.08em;
+    animation:rise .9s .2s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .due-date b{color:var(--ink);font-weight:700}
+
+  .big{
+    margin-top:clamp(10px,3vw,22px);
+    display:flex;align-items:baseline;gap:.12em;
+    animation:rise 1s .32s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .big .num{
+    font-family:"Fraunces",serif;font-weight:300;
+    font-size:clamp(6.2rem,27vw,14rem);
+    line-height:.95;letter-spacing:-.02em;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .big .unit{
+    font-size:clamp(1.6rem,5vw,2.6rem);
+    color:var(--accent);font-weight:700;
+  }
+  .caption{
+    margin-top:6px;font-size:clamp(14px,3.4vw,17px);
+    color:var(--muted);font-weight:500;
+    animation:rise .9s .45s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .caption .tick{
+    font-variant-numeric:tabular-nums;letter-spacing:.04em;color:var(--ink);font-weight:700;
+  }
+
+  .heartbeat{
+    margin-top:clamp(26px,5vw,44px);
+    width:10px;height:10px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 0 rgba(217,118,74,.35);
+    animation:pulse 2.4s ease-out infinite;
+  }
+
+  .panel{
+    margin-top:clamp(28px,6vw,48px);
+    width:100%;
+    background:var(--card);
+    border:1px solid #F0E6D8;
+    border-radius:24px;
+    padding:clamp(22px,5vw,34px) clamp(20px,5vw,34px);
+    box-shadow:0 20px 50px -30px rgba(90,70,40,.25);
+    display:flex;flex-wrap:wrap;gap:clamp(20px,4vw,36px);
+    align-items:center;justify-content:center;
+    animation:rise 1s .58s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .ringbox{position:relative;width:172px;height:172px;flex:none}
+  .ringbox svg{transform:rotate(-90deg)}
+  .ring-track{stroke:var(--track)}
+  .ring-fg{
+    stroke:var(--accent);stroke-linecap:round;
+    transition:stroke-dashoffset 1.6s .5s cubic-bezier(.3,.7,.2,1);
+  }
+  .ring-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:2px;text-align:center;
+  }
+  .ring-center .pct{font-family:"Fraunces",serif;font-weight:400;font-size:30px;line-height:1}
+  .ring-center .lbl{font-size:10.5px;color:var(--muted);letter-spacing:.12em}
+
+  .stats{display:flex;flex-direction:column;gap:14px;min-width:210px;flex:1}
+  .stat{display:flex;flex-direction:column;gap:3px}
+  .stat .k{font-size:11px;color:var(--faint);letter-spacing:.22em;font-weight:700}
+  .stat .v{font-size:19px;font-weight:700}
+  .stat .v small{font-size:12.5px;color:var(--muted);font-weight:500;margin-left:6px}
+
+  .trimester{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:700;color:var(--accent);
+    background:var(--accent-soft);
+    padding:5px 14px;border-radius:999px;width:max-content;
+  }
+  .trimester::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  .timeline{
+    margin-top:clamp(26px,5vw,40px);width:100%;
+    animation:rise 1s .72s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .bar{position:relative;height:8px;border-radius:999px;background:var(--track);overflow:visible}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#E9A87E,var(--accent));width:0;transition:width 1.6s .5s cubic-bezier(.3,.7,.2,1)}
+  .bar .dot{
+    position:absolute;top:50%;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:3px solid var(--accent);
+    transform:translate(-50%,-50%);left:0;
+    transition:left 1.6s .5s cubic-bezier(.3,.7,.2,1);
+    box-shadow:0 2px 8px rgba(217,118,74,.35);
+  }
+  .segs{position:absolute;top:0;bottom:0;width:2px;background:#fff;left:35%}
+  .segs.s2{left:70%}
+  .tl-labels{display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--faint);letter-spacing:.18em;font-weight:700}
+  .tl-labels span.on{color:var(--accent)}
+
+  footer{
+    margin-top:auto;padding-top:clamp(30px,6vw,52px);
+    font-size:12px;color:var(--faint);letter-spacing:.14em;
+    animation:rise 1s .85s cubic-bezier(.2,.7,.2,1) both;
+    text-align:center;
+  }
+
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(217,118,74,.35)}
+    70%{box-shadow:0 0 0 16px rgba(217,118,74,0)}
+    100%{box-shadow:0 0 0 0 rgba(217,118,74,0)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Baby Countdown</div>
+  <div class="due-date">予定日 <b>2027.3.8</b>（月）</div>
+
+  <div class="big" id="big">
+    <span class="num" id="days">—</span><span class="unit">日</span>
+  </div>
+  <div class="caption" id="caption"><span class="tick">—</span></div>
+
+  <div class="heartbeat" aria-hidden="true"></div>
+
+  <div class="panel">
+    <div class="ringbox">
+      <svg width="172" height="172" viewBox="0 0 172 172">
+        <circle class="ring-track" cx="86" cy="86" r="76" fill="none" stroke-width="10"/>
+        <circle class="ring-fg" id="ring" cx="86" cy="86" r="76" fill="none" stroke-width="10"
+                stroke-dasharray="477.5" stroke-dashoffset="477.5"/>
+      </svg>
+      <div class="ring-center">
+        <div class="pct" id="pct">—</div>
+        <div class="lbl" id="ringLabel">280日の旅</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="k">いま何週</span><span class="v" id="weeks">—</span></div>
+      <div class="stat"><span class="k">経過</span><span class="v" id="elapsed">—</span></div>
+      <div class="stat"><span class="k">時期</span><span class="trimester" id="trimester">—</span></div>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="bar">
+      <div class="segs"></div><div class="segs s2"></div>
+      <div class="fill" id="fill"></div>
+      <div class="dot" id="dot"></div>
+    </div>
+    <div class="tl-labels">
+      <span id="t1">初期</span><span id="t2">中期</span><span id="t3">後期</span><span>誕生</span>
+    </div>
+  </div>
+</div>
+
+<footer>すくすく、育ってますように。</footer>
+
+<script>
+(function(){
+  var DUE_UTC = Date.UTC(2027, 2, 8);           // 2027-03-08 (予定日)
+  var GEST = 280;                                  // 標準妊娠期間
+  var LMP_UTC = DUE_UTC - GEST * 86400000;        // 妊娠週数の基準日
+
+  var DAY_NAMES = ["日","月","火","水","木","金","土"];
+
+  function jstDateParts(){
+    var p = new Intl.DateTimeFormat("en-US", {
+      timeZone:"Asia/Tokyo", year:"numeric", month:"numeric", day:"numeric",
+      hour:"numeric", minute:"numeric", second:"numeric", hour12:false
+    }).formatToParts(new Date());
+    var o = {};
+    p.forEach(function(x){ o[x.type] = parseInt(x.value, 10); });
+    return o;
+  }
+
+  function pad(n){ return String(n).padStart(2,"0"); }
+
+  function render(){
+    var now = new Date();
+    var jp = jstDateParts();
+    var todayMid = Date.UTC(jp.year, jp.month - 1, jp.day);
+    var daysUntil = Math.round((DUE_UTC - todayMid) / 86400000);
+    var elapsed = Math.round((todayMid - LMP_UTC) / 86400000);
+
+    var daysEl = document.getElementById("days");
+    var caption = document.getElementById("caption");
+    var big = document.getElementById("big");
+
+    if (daysUntil > 0) {
+      var msLeft = DUE_UTC - (Date.UTC(jp.year, jp.month-1, jp.day, jp.hour, jp.minute, jp.second));
+      var h = Math.floor(msLeft / 3600000) % 24;
+      var m = Math.floor(msLeft / 60000) % 60;
+      var s = Math.floor(msLeft / 1000) % 60;
+      daysEl.textContent = daysUntil;
+      big.querySelector(".unit").textContent = "日";
+      caption.innerHTML = 'うまれるまで、あと <span class="tick">' +
+        pad(h) + "時間 " + pad(m) + "分 " + pad(s) + "秒</span>";
+    } else if (daysUntil === 0) {
+      daysEl.textContent = "0";
+      big.querySelector(".unit").textContent = "日";
+      caption.innerHTML = '今日が予定日です。まもなく、会える。';
+    } else {
+      daysEl.textContent = Math.abs(daysUntil);
+      big.querySelector(".unit").textContent = "日目";
+      caption.innerHTML = '予定日をすぎて、今日で <span class="tick">' + Math.abs(daysUntil) + "</span> 日。";
+    }
+
+    // 妊娠週数
+    var weeksEl = document.getElementById("weeks");
+    var elapsedEl = document.getElementById("elapsed");
+    var trimEl = document.getElementById("trimester");
+    if (elapsed >= 0 && daysUntil >= 0) {
+      var w = Math.floor(elapsed / 7), d = elapsed % 7;
+      weeksEl.innerHTML = w + "週" + d + "日 <small>" + (w+1) + "週目</small>";
+      elapsedEl.innerHTML = elapsed + "日目 <small>/ 280日</small>";
+      var t;
+      if (w < 14) t = "妊娠初期";
+      else if (w < 28) t = "妊娠中期";
+      else t = "妊娠後期";
+      trimEl.textContent = t;
+    } else if (daysUntil < 0) {
+      weeksEl.textContent = "予定日すぎ";
+      elapsedEl.innerHTML = (GEST + Math.abs(daysUntil)) + "日目";
+      trimEl.textContent = "いつでもどうぞ";
+    } else {
+      weeksEl.textContent = "—";
+      elapsedEl.textContent = "—";
+      trimEl.textContent = "—";
+    }
+
+    // リング & バー
+    var prog = Math.min(Math.max(elapsed / GEST, 0), 1);
+    var C = 2 * Math.PI * 76;
+    document.getElementById("ring").style.strokeDashoffset = String(C * (1 - prog));
+    document.getElementById("pct").textContent = Math.floor(prog * 100) + "%";
+    document.getElementById("fill").style.width = (prog * 100) + "%";
+    document.getElementById("dot").style.left = (prog * 100) + "%";
+
+    var w2 = elapsed >= 0 ? Math.floor(elapsed / 7) : -1;
+    document.getElementById("t1").className = (w2 >= 0 && w2 < 14) ? "on" : "";
+    document.getElementById("t2").className = (w2 >= 14 && w2 < 28) ? "on" : "";
+    document.getElementById("t3").className = (w2 >= 28) ? "on" : "";
+  }
+
+  render();
+  setInterval(render, 1000);
+})();
+</script>
+</body>
+</html>

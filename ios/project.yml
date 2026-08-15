@@ -1,0 +1,76 @@
+name: BabyCountdown
+options:
+  bundleIdPrefix: com.2-38
+  developmentLanguage: ja
+  knownRegions:
+    - ja
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_LANGUAGE: ja
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  BabyCountdown:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/App
+      - path: Sources/Shared
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: BabyCountdown
+        PRODUCT_MODULE_NAME: BabyCountdown
+        PRODUCT_BUNDLE_IDENTIFIER: com.2-38.babycountdown
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Resources/BabyCountdown.entitlements
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - target: BabyCountdownWidgets
+  BabyCountdownWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BabyCountdownWidgets
+      - path: Sources/Shared
+    settings:
+      base:
+        PRODUCT_NAME: BabyCountdownWidgets
+        PRODUCT_MODULE_NAME: BabyCountdownWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: com.2-38.babycountdown.widgets
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: BabyCountdownWidgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BabyCountdownWidgets/BabyCountdownWidgets.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+  BabyCountdownTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests
+    dependencies:
+      - target: BabyCountdown
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.2-38.babycountdown.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/BabyCountdown.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BabyCountdown"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  BabyCountdown:
+    build:
+      targets:
+        BabyCountdown: all
+    test:
+      targets:
+        - BabyCountdownTests

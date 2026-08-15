@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "baby-countdown",
+  "compatibility_date": "2026-07-01",
+  "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
+  "assets": {
+    "directory": "./public"
+  },
+  "routes": [
+    {
+      "pattern": "baby.example.com",
+      "custom_domain": true,
+      "zone_name": "example.com"
+    }
+  ]
+}
